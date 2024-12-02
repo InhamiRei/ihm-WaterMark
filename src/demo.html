@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .water-mark {
+        width: 500px;
+        height: 500px;
+        margin: 20px 0 0 20px;
+        border: 1px solid #676767;
+      }
+    </style>
+    <script src="../dist/main.js"></script>
+  </head>
+
+  <body>
+    <div id="water-mark" class="water-mark"></div>
+  </body>
+  <script>
+    const watermark = new TWatermark({
+      container: document.getElementById("water-mark"),
+      content: `Taro`,
+      x: 40,
+      y: 60,
+      color: "#000000",
+      opacity: "0.3",
+      zIndex: 1000,
+      rotate: -30,
+      fontSize: 20,
+      width: 250,
+      height: 150,
+    });
+
+    watermark.output();
+  </script>
+</html>
