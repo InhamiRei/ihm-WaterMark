@@ -1,5 +1,5 @@
 class T_watermark {
-  constructor(params) {
+  constructor(config) {
     this.params = Object.assign(
       {
         container: document.body,
@@ -13,11 +13,11 @@ class T_watermark {
         zIndex: 1000,
         opacity: 0.5,
       },
-      params
+      config
     );
 
-    this.params.x = this.isNullOrUndefined(params.x) ? this.params.width / 2 : params.x;
-    this.params.y = this.isNullOrUndefined(params.y) ? this.params.height / 2 : params.y;
+    this.params.x = this.isNullOrUndefined(config.x) ? this.params.width / 2 : config.x;
+    this.params.y = this.isNullOrUndefined(config.y) ? this.params.height / 2 : config.y;
 
     this.watermarkHost = null; // 宿主元素
     this.styleContent = ""; // 存储基准样式内容
@@ -42,6 +42,9 @@ class T_watermark {
     canvas.setAttribute("height", `${height}px`);
 
     const ctx = canvas.getContext("2d");
+
+    if (!ctx) return; // 空值检查
+
     if (ctx) {
       ctx.clearRect(0, 0, width, height);
       ctx.textBaseline = "top";
