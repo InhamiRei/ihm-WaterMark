@@ -29,7 +29,7 @@ English | [简体中文](README-zh_CN.md)
 
 ## ✨ Usage
 
-1. Direct Usage
+### ① Direct Usage
 
 - Include the file
 
@@ -53,7 +53,7 @@ const watermark = new TWaterMark({
 watermark.output();
 ```
 
-2. Using as an npm package
+### ② Using as an npm package
 
 - Install the dependency package
 
@@ -102,3 +102,7 @@ yarn
 ```bash
 yarn build
 ```
+
+## ✨ Pictures
+
+![Pictures1](https://inhami.com/static/githubImage/ihm-watermark/watermark-1.png)

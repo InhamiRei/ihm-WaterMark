@@ -29,7 +29,7 @@
 
 ## ✨ 使用
 
-1. 直接使用
+### ① 直接使用
 
 - 引入文件
 
@@ -53,7 +53,7 @@ const watermark = new TWaterMark({
 watermark.output();
 ```
 
-2. 作为 npm 包使用
+### ② 作为 npm 包使用
 
 - 安装依赖包
 
@@ -102,3 +102,7 @@ yarn
 ```bash
 yarn build
 ```
+
+## ✨ 效果
+
+![效果图1](https://inhami.com/static/githubImage/ihm-watermark/watermark-1.png)
