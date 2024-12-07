@@ -12,20 +12,20 @@ English | [简体中文](README-zh_CN.md)
 
 ## ✨ Configuration
 
-| Parameter | Default Value              | Required | Description                                                                                                                                |
-| --------- | -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| container | document.body              | Yes      | The container element to which the watermark will be attached. Typically used to specify the area where the watermark should be displayed. |
-| width     | 250                        | No       | Width of the watermark (in pixels).                                                                                                        |
-| height    | 150                        | No       | Height of the watermark (in pixels).                                                                                                       |
-| fontSize  | 20                         | No       | Font size of the watermark text (in pixels).                                                                                               |
-| font      | "microsoft yahei"          | No       | Font of the watermark text.                                                                                                                |
-| color     | "#cccccc"                  | No       | Color of the watermark text, default is light gray.                                                                                        |
-| content   | "watermark"                | No       | The text content of the watermark.                                                                                                         |
-| rotate    | -30                        | No       | Rotation angle of the watermark (in degrees).                                                                                              |
-| zIndex    | 1000                       | No       | z-index of the watermark container, used to control its layer in the stacking context.                                                     |
-| opacity   | 0.5                        | No       | Opacity of the watermark, ranging from 0 (completely transparent) to 1 (completely opaque).                                                |
-| x         | null (default is centered) | No       | The starting X coordinate for the watermark text. If null, the default is width / 2.                                                       |
-| y         | null (default is centered) | No       | The starting Y coordinate for the watermark text. If null, the default is height / 2.                                                      |
+| Parameter | Default Value              | Required | Description                                                                                                                               |
+| --------- | -------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| container | document.body              | Yes      | The container element to which the watermark will be attached. Typically used to specify the area where the watermark should be displayed |
+| width     | 250                        | No       | Width of the watermark (in pixels)                                                                                                        |
+| height    | 150                        | No       | Height of the watermark (in pixels)                                                                                                       |
+| fontSize  | 20                         | No       | Font size of the watermark text (in pixels)                                                                                               |
+| font      | "microsoft yahei"          | No       | Font of the watermark text                                                                                                                |
+| color     | "#cccccc"                  | No       | Color of the watermark text, default is light gray                                                                                        |
+| content   | "watermark"                | No       | The text content of the watermark                                                                                                         |
+| rotate    | -30                        | No       | Rotation angle of the watermark (in degrees)                                                                                              |
+| zIndex    | 1000                       | No       | z-index of the watermark container, used to control its layer in the stacking context                                                     |
+| opacity   | 0.5                        | No       | Opacity of the watermark, ranging from 0 (completely transparent) to 1 (completely opaque)                                                |
+| x         | null (default is centered) | No       | The starting X coordinate for the watermark text. If null, the default is width / 2                                                       |
+| y         | null (default is centered) | No       | The starting Y coordinate for the watermark text. If null, the default is height / 2                                                      |
 
 ## ✨ Usage
 
