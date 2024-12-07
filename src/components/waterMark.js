@@ -1,50 +1,80 @@
-class T_watermark {
+import { isDom } from "./utils";
+
+export default class T_watermark {
   constructor(config) {
-    this.params = Object.assign(
-      {
-        container: document.body,
-        width: 250,
-        height: 150,
-        fontSize: 16,
-        font: "microsoft yahei",
-        color: "#cccccc",
-        content: "watermark",
-        rotate: -30,
-        zIndex: 1000,
-        opacity: 0.5,
-      },
-      config
-    );
+    // container是必填的，需要知道加在哪个地方
+    if (!config || !config.container) {
+      throw new Error("The 'container' parameter is required and must be a valid DOM element.");
+    }
+    // 确保 container 是一个 DOM 元素
+    if (!isDom(config.container)) {
+      throw new Error("The 'container' parameter must be a valid DOM element.");
+    }
 
-    this.params.x = this.isNullOrUndefined(config.x) ? this.params.width / 2 : config.x;
-    this.params.y = this.isNullOrUndefined(config.y) ? this.params.height / 2 : config.y;
+    this.params = {
+      // 水印将附加到的容器元素，默认为整个文档（document.body）
+      container: config.container,
+      // 水印的宽度，单位是像素
+      width: 250,
+      // 水印的高度，单位是像素
+      height: 150,
+      // 水印文字的字体大小，单位是像素
+      fontSize: 20,
+      // 水印文字的字体
+      font: "microsoft yahei",
+      // 水印文字的颜色，默认为浅灰色
+      color: "#cccccc",
+      // 水印的文字内容
+      content: "watermark",
+      // 水印的旋转角度，单位是度，默认倾斜 -30°
+      rotate: -30,
+      // 水印容器的 z-index，用于控制其在层叠上下文中的层级
+      zIndex: 1000,
+      // 水印的透明度，范围是 0（完全透明）到 1（完全不透明）
+      opacity: 0.5,
+      // 水印文字的起始 X 坐标（如果为 null，则使用 width 的一半作为默认值）
+      x: null,
+      // 水印文字的起始 Y 坐标（如果为 null，则使用 height 的一半作为默认值）
+      y: null,
+      ...config,
+    };
 
-    this.watermarkHost = null; // 宿主元素
-    this.styleContent = ""; // 存储基准样式内容
-    this.shadowObserver = null; // 观察 ShadowRoot 的变化
-    this.checkInterval = null; // 定时检查任务
+    // 设置默认的 x, y 坐标
+    this.params.x = this.params.x !== null && this.params.x !== undefined ? this.params.x : this.params.width / 2;
+    this.params.y = this.params.y !== null && this.params.y !== undefined ? this.params.y : this.params.height / 2;
+
+    this.styleStr = this.generateStyle();
+
+    // 初始化观察器
+    this.containerObserver = new MutationObserver(this.handleContainerMutations.bind(this));
+    this.watermarkObserver = new MutationObserver(this.handleWatermarkMutations.bind(this));
   }
 
-  isNullOrUndefined(n) {
-    return n === null || n === undefined;
+  // 生成样式字符串
+  generateStyle() {
+    return `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: ${this.params.zIndex};
+      pointer-events: none;
+      background-repeat: repeat;
+      background-image: url('${this.toDataURL()}');
+    `;
   }
 
-  isDom(n) {
-    return typeof HTMLElement === "object"
-      ? n instanceof HTMLElement
-      : n && typeof n === "object" && n.nodeType === 1 && typeof n.nodeName === "string";
-  }
-
+  // 绘制水印的 DataURL
   toDataURL() {
     const { width, height, fontSize, font, color, rotate, content, opacity, x, y } = this.params;
+
+    // 创建画布
     const canvas = document.createElement("canvas");
-    canvas.setAttribute("width", `${width}px`);
-    canvas.setAttribute("height", `${height}px`);
+    canvas.width = width;
+    canvas.height = height;
 
     const ctx = canvas.getContext("2d");
-
-    if (!ctx) return; // 空值检查
-
     if (ctx) {
       ctx.clearRect(0, 0, width, height);
       ctx.textBaseline = "top";
@@ -61,98 +91,67 @@ class T_watermark {
     return canvas.toDataURL();
   }
 
-  createWatermarkDom() {
-    const { container } = this.params;
-    if (!this.isDom(container)) return;
+  // 获取或创建水印 DOM
+  getOrCreateWatermarkDom() {
+    let watermarkDom = document.querySelector(".open-watermark");
+    if (!watermarkDom) {
+      watermarkDom = document.createElement("div");
+      watermarkDom.setAttribute("class", "open-watermark");
+      this.params.container.style.position = "relative";
+      this.params.container.insertBefore(watermarkDom, this.params.container.firstChild);
 
-    // 清理旧水印
-    if (this.watermarkHost) {
-      this.watermarkHost.remove();
+      this.watermarkObserver.observe(watermarkDom, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
     }
-
-    // 创建宿主元素
-    this.watermarkHost = document.createElement("div");
-    this.watermarkHost.setAttribute("class", "open-watermark");
-    this.watermarkHost.style.position = "absolute";
-    this.watermarkHost.style.top = "0";
-    this.watermarkHost.style.left = "0";
-    this.watermarkHost.style.width = "100%";
-    this.watermarkHost.style.height = "100%";
-    this.watermarkHost.style.zIndex = this.params.zIndex;
-    this.watermarkHost.style.pointerEvents = "none";
-
-    // 创建 Shadow DOM
-    const shadowRoot = this.watermarkHost.attachShadow({ mode: "closed" });
-
-    // 添加样式和内容到 ShadowRoot
-    const style = document.createElement("style");
-    this.styleContent = `
-      :host {
-        display: block;
-        width: 100%;
-        height: 100%;
-        background-repeat: repeat;
-        background-image: url('${this.toDataURL()}');
-      }
-    `;
-    style.textContent = this.styleContent;
-    shadowRoot.appendChild(style);
-
-    // 插入到容器
-    container.style.position = "relative";
-    container.insertBefore(this.watermarkHost, container.firstChild);
-
-    // 开始监听 Shadow DOM
-    this.startShadowObserver(shadowRoot, style);
+    return watermarkDom;
   }
 
-  startShadowObserver(shadowRoot, style) {
-    // 监听 ShadowRoot 内部变化
-    this.shadowObserver = new MutationObserver(() => {
-      // 检查样式内容是否被修改
-      if (style.textContent !== this.styleContent) {
-        style.textContent = this.styleContent; // 恢复样式
+  // 更新水印 DOM 的样式
+  updateWatermarkStyle() {
+    const watermarkDom = this.getOrCreateWatermarkDom();
+    const currentStyle = watermarkDom.getAttribute("style");
+    if (currentStyle !== this.styleStr) {
+      watermarkDom.setAttribute("style", this.styleStr);
+    }
+  }
+
+  // 处理容器 DOM 的变更
+  handleContainerMutations(mutationsList, observer) {
+    mutationsList.forEach((mutation) => {
+      const watermarkDom = document.querySelector(".open-watermark");
+      if (!watermarkDom) {
+        this.updateWatermarkStyle();
       }
     });
+  }
 
-    // 开始观察
-    this.shadowObserver.observe(shadowRoot, {
-      characterData: true,
-      childList: true,
-      subtree: true,
+  // 处理水印 DOM 的变更
+  handleWatermarkMutations(mutationsList, observer) {
+    mutationsList.forEach((mutation) => {
+      this.updateWatermarkStyle();
     });
-
-    // 定时检查任务
-    this.startIntervalCheck();
   }
 
-  startIntervalCheck() {
-    // 定时检查水印的完整性
-    this.checkInterval = setInterval(() => {
-      if (!this.watermarkHost || !document.body.contains(this.watermarkHost)) {
-        this.output(); // 水印丢失或被删除，重新生成
-      }
-    }, 1000); // 每秒检查一次
-  }
-
+  // 输出水印
   output() {
-    this.createWatermarkDom();
+    this.updateWatermarkStyle();
+    this.containerObserver.observe(this.params.container, {
+      attributes: true,
+      childList: true,
+      characterData: true,
+    });
   }
 
+  // 销毁水印
   destroy() {
-    if (this.watermarkHost) {
-      this.watermarkHost.remove();
-      this.watermarkHost = null;
+    const watermarkDom = document.querySelector(".open-watermark");
+    if (watermarkDom) {
+      watermarkDom.remove();
     }
-    if (this.shadowObserver) {
-      this.shadowObserver.disconnect();
-      this.shadowObserver = null;
-    }
-    if (this.checkInterval) {
-      clearInterval(this.checkInterval);
-      this.checkInterval = null;
-    }
+    this.watermarkObserver.disconnect();
+    this.containerObserver.disconnect();
   }
 }
-
-export default T_watermark;
