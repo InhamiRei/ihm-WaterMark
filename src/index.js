@@ -1,8 +1,8 @@
-import T_watermark from "./components/waterMark.js";
+import ihm_WaterMark from "./components/waterMark.js";
 
-function TWaterMark(config) {
-  return new T_watermark(config);
+function ihmWaterMark(config) {
+  return new ihm_WaterMark(config);
 }
 
-window.TWaterMark = TWaterMark;
-export default TWaterMark;
+window.ihmWaterMark = ihmWaterMark;
+export default ihmWaterMark;

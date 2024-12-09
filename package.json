@@ -1,6 +1,6 @@
 {
   "name": "ihm-watermark",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple watermark library for web applications.",
   "main": "./dist/esm.js",
   "scripts": {

@@ -46,7 +46,7 @@ English | [简体中文](README-zh_CN.md)
 - Initialize the watermark
 
 ```javascript
-const watermark = new TWaterMark({
+const watermark = new ihmWaterMark({
   container: document.getElementById("water-mark"),
 });
 
@@ -67,13 +67,13 @@ yarn add ihm-watermark
 - Import the package
 
 ```javascript
-import TWaterMark from "ihm-watermark";
+import ihmWaterMark from "ihm-watermark";
 ```
 
 - Initialize the watermark
 
 ```javascript
-const watermark = new TWaterMark({
+const watermark = new ihmWaterMark({
   container: document.getElementById("water-mark"),
 });
 

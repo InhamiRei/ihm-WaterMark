@@ -1,6 +1,6 @@
 import { isDom } from "./utils";
 
-export default class T_watermark {
+export default class ihm_WaterMark {
   constructor(config) {
     // container是必填的，需要知道加在哪个地方
     if (!config || !config.container) {

@@ -46,7 +46,7 @@
 - 初始化水印
 
 ```javascript
-const watermark = new TWaterMark({
+const watermark = new ihmWaterMark({
   container: document.getElementById("water-mark"),
 });
 
@@ -67,13 +67,13 @@ yarn add ihm-watermark
 - 导入
 
 ```javascript
-import TWaterMark from "ihm-watermark";
+import ihmWaterMark from "ihm-watermark";
 ```
 
 - 初始化水印
 
 ```javascript
-const watermark = new TWaterMark({
+const watermark = new ihmWaterMark({
   container: document.getElementById("water-mark"),
 });
 
