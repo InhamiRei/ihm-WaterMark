@@ -93,11 +93,11 @@ export default class ihm_WaterMark {
 
   // 获取或创建水印 DOM
   getOrCreateWatermarkDom() {
-    let watermarkDom = document.querySelector(".ihm-watermark");
+    let watermarkDom = this.params.container.querySelector(".ihm-watermark"); // 限定在当前容器内查找
     if (!watermarkDom) {
       watermarkDom = document.createElement("div");
       watermarkDom.setAttribute("class", "ihm-watermark");
-      this.params.container.style.position = "relative";
+      this.params.container.style.position = "relative"; // 确保容器有 position 属性
       this.params.container.insertBefore(watermarkDom, this.params.container.firstChild);
 
       this.watermarkObserver.observe(watermarkDom, {
@@ -121,9 +121,9 @@ export default class ihm_WaterMark {
   // 处理容器 DOM 的变更
   handleContainerMutations(mutationsList, observer) {
     mutationsList.forEach((mutation) => {
-      const watermarkDom = document.querySelector(".ihm-watermark");
+      const watermarkDom = this.params.container.querySelector(".ihm-watermark"); // 当前容器查找
       if (!watermarkDom) {
-        this.updateWatermarkStyle();
+        this.updateWatermarkStyle(); // 如果水印 DOM 被移除，重新创建
       }
     });
   }
@@ -147,7 +147,7 @@ export default class ihm_WaterMark {
 
   // 销毁水印
   destroy() {
-    const watermarkDom = document.querySelector(".ihm-watermark");
+    const watermarkDom = this.params.container.querySelector(".ihm-watermark"); // 限定在当前容器查找
     if (watermarkDom) {
       watermarkDom.remove();
     }
