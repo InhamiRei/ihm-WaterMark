@@ -1,4 +1,4 @@
-import { isDom } from "./utils";
+import { isDom } from "../utils/common.js";
 
 export default class ihm_WaterMark {
   constructor(config) {
@@ -24,7 +24,7 @@ export default class ihm_WaterMark {
       font: "microsoft yahei",
       // 水印文字的颜色，默认为浅灰色
       color: "#cccccc",
-      // 水印的文字内容
+      // 水印的文字内容，支持字符串或字符串数组
       content: "watermark",
       // 水印的旋转角度，单位是度，默认倾斜 -30°
       rotate: -30,
@@ -36,8 +36,15 @@ export default class ihm_WaterMark {
       x: null,
       // 水印文字的起始 Y 坐标（如果为 null，则使用 height 的一半作为默认值）
       y: null,
+      // 水印之间的间距，gap: [水平间距, 垂直间距]
+      gap: [0, 0],
       ...config,
     };
+
+    // gap参数归一化
+    if (!Array.isArray(this.params.gap) || this.params.gap.length !== 2) {
+      this.params.gap = [100, 100];
+    }
 
     // 设置默认的 x, y 坐标
     this.params.x = this.params.x !== null && this.params.x !== undefined ? this.params.x : this.params.width / 2;
@@ -52,6 +59,9 @@ export default class ihm_WaterMark {
 
   // 生成样式字符串
   generateStyle() {
+    // 计算背景尺寸
+    const bgWidth = this.params.width + this.params.gap[0];
+    const bgHeight = this.params.height + this.params.gap[1];
     return `
       position: absolute;
       top: 0;
@@ -61,33 +71,44 @@ export default class ihm_WaterMark {
       z-index: ${this.params.zIndex};
       pointer-events: none;
       background-repeat: repeat;
+      background-size: ${bgWidth}px ${bgHeight}px;
       background-image: url('${this.toDataURL()}');
     `;
   }
 
   // 绘制水印的 DataURL
   toDataURL() {
-    const { width, height, fontSize, font, color, rotate, content, opacity, x, y } = this.params;
-
-    // 创建画布
+    const { width, height, fontSize, font, color, rotate, content, opacity, x, y, gap } = this.params;
+    // 创建画布，画布大小为width+gap[0], height+gap[1]
     const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-
+    canvas.width = width + gap[0];
+    canvas.height = height + gap[1];
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.textBaseline = "top";
       ctx.textAlign = "left";
       ctx.fillStyle = color;
       ctx.globalAlpha = opacity;
       ctx.font = `${fontSize}px ${font}`;
+      ctx.save();
       ctx.translate(x, y);
       ctx.rotate((Math.PI / 180) * rotate);
-      ctx.translate(-x, -y - fontSize);
-      ctx.fillText(content, x, y + fontSize);
+      ctx.translate(-x, -y);
+      // 处理多行文本
+      if (Array.isArray(content)) {
+        const lineHeight = fontSize * 1.5; // 行高是字体大小的1.5倍
+        const totalHeight = lineHeight * (content.length - 1);
+        const startY = y - totalHeight / 2;
+        content.forEach((text, index) => {
+          const lineY = startY + lineHeight * index;
+          ctx.fillText(text, x - ctx.measureText(text).width / 2, lineY);
+        });
+      } else {
+        ctx.fillText(content, x - ctx.measureText(content).width / 2, y - fontSize / 2);
+      }
+      ctx.restore();
     }
-
     return canvas.toDataURL();
   }
 

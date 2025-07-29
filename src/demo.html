@@ -16,19 +16,23 @@
         border: 1px solid #676767;
       }
     </style>
-    <script src="../dist/main.js"></script>
   </head>
-
   <body>
     <div id="water-mark" class="water-mark"></div>
-  </body>
-  <script>
-    const watermark = new ihmWaterMark({
-      container: document.getElementById("water-mark"),
-      x: 40,
-      y: 60,
-    });
 
-    watermark.output();
-  </script>
+    <script type="module">
+      import ihmWaterMark from "./components/WaterMark.js";
+
+      const watermark = new ihmWaterMark({
+        container: document.getElementById("water-mark"),
+        x: 40,
+        y: 60,
+        content: ["123", "456"],
+        // gap: [20, 10],
+        // content: "123",
+      });
+
+      watermark.output();
+    </script>
+  </body>
 </html>
