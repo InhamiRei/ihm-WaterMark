@@ -4,52 +4,509 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>水印组件演示</title>
     <style>
       body {
-        background-color: #000;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f7ff;
       }
-      .water-mark {
-        width: 440px;
+      .container {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .preview-area {
+        flex: 1;
+        min-width: 400px;
+      }
+      .water-mark-container {
+        width: 100%;
         height: 400px;
-        margin: 20px 0 0 20px;
-        border: 1px solid #676767;
+        border: 1px solid #a0c6ff;
+        background-color: #fff;
+        margin-bottom: 10px;
+        position: relative;
+        border-radius: 5px;
+        box-shadow: 0 2px 6px rgba(0, 102, 204, 0.1);
+      }
+      .control-panel {
+        flex: 1;
+        min-width: 400px;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+        background-color: #fff;
+        padding: 15px;
+        border: 1px solid #a0c6ff;
+        border-radius: 5px;
+        box-shadow: 0 2px 6px rgba(0, 102, 204, 0.1);
+      }
+      .control-group {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px dashed #a0c6ff;
+      }
+      .control-group h3 {
+        margin-top: 0;
+        color: #0066cc;
+      }
+      .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .form-group {
+        flex: 1;
+        min-width: 150px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #0066cc;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+        border: 1px solid #a0c6ff;
+        border-radius: 4px;
+        height: 30px;
+        line-height: 20px;
+        font-size: 14px;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #0066cc;
+        box-shadow: 0 0 3px rgba(0, 102, 204, 0.3);
+      }
+      input[type="number"],
+      input[type="text"] {
+        height: 30px;
+        line-height: 20px;
+        padding: 5px;
+        box-sizing: border-box;
+      }
+      input[type="range"] {
+        padding: 0;
+        border: none;
+        background: transparent;
+        height: 30px;
+        margin-top: 0;
+      }
+      .form-group input[type="number"] {
+        height: 30px !important;
+        line-height: 20px !important;
+        padding: 5px !important;
+        box-sizing: border-box !important;
+        vertical-align: top;
+      }
+      .radio-group {
+        display: flex;
+        gap: 15px;
+      }
+      .radio-label {
+        display: flex;
+        align-items: center;
+        font-weight: normal;
+        color: #333;
+      }
+      .radio-label input {
+        width: auto;
+        margin-right: 5px;
+      }
+      button {
+        padding: 8px 15px;
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.2s;
+      }
+      button:hover {
+        background-color: #0055aa;
+      }
+      .status {
+        margin-top: 10px;
+        font-style: italic;
+        color: #0066cc;
       }
     </style>
   </head>
   <body>
-    <div id="water-mark" class="water-mark"></div>
+    <div class="container">
+      <div class="preview-area">
+        <div id="watermark" class="water-mark-container"></div>
+        <div class="status" id="status"></div>
+      </div>
+
+      <div class="control-panel">
+        <div class="control-group">
+          <h3>基本设置</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>水印类型</label>
+              <div class="radio-group">
+                <label class="radio-label"> <input type="radio" name="watermark-type" value="text" checked /> 文本水印 </label>
+                <label class="radio-label"> <input type="radio" name="watermark-type" value="image" /> 图片水印 </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="text-settings" class="control-group">
+          <h3>文本设置</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>水印文字</label>
+              <input type="text" id="content" value="示例水印" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>多行文本模式</label>
+              <div class="radio-group">
+                <label class="radio-label"> <input type="radio" name="text-mode" value="single" checked /> 单行 </label>
+                <label class="radio-label"> <input type="radio" name="text-mode" value="multi" /> 多行 </label>
+              </div>
+            </div>
+          </div>
+          <div id="multi-line-inputs" style="display: none">
+            <div class="form-row">
+              <div class="form-group">
+                <label>第一行</label>
+                <input type="text" id="line1" value="公司名称" />
+              </div>
+              <div class="form-group">
+                <label>第二行</label>
+                <input type="text" id="line2" value="内部文件" />
+              </div>
+              <div class="form-group">
+                <label>第三行</label>
+                <input type="text" id="line3" value="请勿外传" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="image-settings" class="control-group" style="display: none">
+          <h3>图片设置</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>图片类型</label>
+              <div class="radio-group">
+                <label class="radio-label"> <input type="radio" name="image-type" value="valid" checked /> 有效图片 </label>
+                <label class="radio-label"> <input type="radio" name="image-type" value="invalid" /> 无效图片 </label>
+              </div>
+            </div>
+          </div>
+          <div id="valid-image-input">
+            <div class="form-row">
+              <div class="form-group">
+                <label>图片URL</label>
+                <input type="text" id="image-url" value="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg" />
+              </div>
+            </div>
+          </div>
+          <div id="invalid-image-input" style="display: none">
+            <div class="form-row">
+              <div class="form-group">
+                <label>无效图片URL</label>
+                <input type="text" id="invalid-url" value="https://example.com/nonexistent-image.png" />
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>图片加载失败文本</label>
+              <input type="text" id="fallback-text" value="图片加载失败" />
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>布局和样式</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>水印宽度</label>
+              <input type="number" id="width" value="120" />
+            </div>
+            <div class="form-group">
+              <label>水印高度</label>
+              <input type="number" id="height" value="64" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>X坐标</label>
+              <input type="number" id="x-pos" value="60" />
+            </div>
+            <div class="form-group">
+              <label>Y坐标</label>
+              <input type="number" id="y-pos" value="32" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>水平间距</label>
+              <input type="number" id="gap-x" value="100" />
+            </div>
+            <div class="form-group">
+              <label>垂直间距</label>
+              <input type="number" id="gap-y" value="100" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>水平偏移</label>
+              <input type="number" id="offset-x" value="50" />
+            </div>
+            <div class="form-group">
+              <label>垂直偏移</label>
+              <input type="number" id="offset-y" value="50" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>旋转角度</label>
+              <input type="number" id="rotate" value="-22" />
+            </div>
+            <div class="form-group">
+              <label>优先级(zIndex)</label>
+              <input type="number" id="z-index" value="9" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>透明度</label>
+              <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.5" />
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>字体设置</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>字体颜色</label>
+              <input type="color" id="font-color" value="#000000" />
+            </div>
+            <div class="form-group">
+              <label>字体大小</label>
+              <input type="number" id="font-size" value="16" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>字体样式</label>
+              <select id="font-style">
+                <option value="normal">普通</option>
+                <option value="italic">斜体</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>字体粗细</label>
+              <select id="font-weight">
+                <option value="normal">普通</option>
+                <option value="bold">粗体</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>字体系列</label>
+              <select id="font-family">
+                <option value="sans-serif">Sans-serif</option>
+                <option value="serif">Serif</option>
+                <option value="monospace">Monospace</option>
+                <option value="Arial">Arial</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>文本对齐</label>
+              <select id="text-align">
+                <option value="center">居中</option>
+                <option value="left">左对齐</option>
+                <option value="right">右对齐</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <button id="destroy">销毁水印</button>
+          <button id="recreate">重新创建</button>
+        </div>
+      </div>
+    </div>
 
     <script type="module">
       import ihmWaterMark from "./components/WaterMark.js";
 
-      const watermark = new ihmWaterMark({
-        container: document.getElementById("water-mark"),
-        image: "data:image/png;base64,...",
-        content: ["123", "456"],
-        font: {
-          color: "#ff0000",
-          fontSize: 23,
-          fontWeight: "bold",
-          fontFamily: "Arial",
-          fontStyle: "italic",
-          textAlign: "center",
-        },
-      });
+      // 初始化水印实例
+      let watermark = null;
+      let isDestroyed = false;
 
-      watermark.output();
+      // 创建水印函数
+      function createWatermark() {
+        const container = document.getElementById("watermark");
 
-      setTimeout(() => {
-        watermark.update({
-          width: 100,
-          height: 100,
-          x: 50,
-          y: 50,
-          rotate: -20,
-          gap: 5, // 传错了，不生效
-          image: "https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg",
+        // 获取当前配置
+        const config = getCurrentConfig();
+
+        // 创建水印
+        watermark = new ihmWaterMark({
+          container: container,
+          ...config,
         });
-      }, 5000);
+
+        watermark.output();
+        isDestroyed = false;
+        document.getElementById("status").textContent = "水印已创建";
+      }
+
+      // 获取当前配置
+      function getCurrentConfig() {
+        const config = {};
+
+        // 基本设置
+        const watermarkType = document.querySelector('input[name="watermark-type"]:checked').value;
+
+        if (watermarkType === "text") {
+          // 文本设置
+          const textMode = document.querySelector('input[name="text-mode"]:checked').value;
+
+          if (textMode === "single") {
+            config.content = document.getElementById("content").value;
+          } else {
+            config.content = [document.getElementById("line1").value, document.getElementById("line2").value, document.getElementById("line3").value];
+          }
+        } else {
+          // 图片设置
+          const imageType = document.querySelector('input[name="image-type"]:checked').value;
+
+          if (imageType === "valid") {
+            config.image = document.getElementById("image-url").value;
+          } else {
+            config.image = document.getElementById("invalid-url").value;
+          }
+
+          config.content = document.getElementById("fallback-text").value;
+        }
+
+        // 布局和样式
+        config.width = parseInt(document.getElementById("width").value);
+        config.height = parseInt(document.getElementById("height").value);
+        config.x = parseInt(document.getElementById("x-pos").value);
+        config.y = parseInt(document.getElementById("y-pos").value);
+        config.gap = [parseInt(document.getElementById("gap-x").value), parseInt(document.getElementById("gap-y").value)];
+        config.offset = [parseInt(document.getElementById("offset-x").value), parseInt(document.getElementById("offset-y").value)];
+        config.rotate = parseInt(document.getElementById("rotate").value);
+        config.zIndex = parseInt(document.getElementById("z-index").value);
+        config.opacity = parseFloat(document.getElementById("opacity").value);
+
+        // 字体设置
+        config.font = {
+          color: document.getElementById("font-color").value,
+          fontSize: parseInt(document.getElementById("font-size").value),
+          fontStyle: document.getElementById("font-style").value,
+          fontWeight: document.getElementById("font-weight").value,
+          fontFamily: document.getElementById("font-family").value,
+          textAlign: document.getElementById("text-align").value,
+        };
+
+        return config;
+      }
+
+      // 更新水印
+      function updateWatermark() {
+        if (isDestroyed) return;
+
+        const config = getCurrentConfig();
+        document.getElementById("status").textContent = "更新中...";
+
+        watermark.update(config).then(() => {
+          document.getElementById("status").textContent = "已更新";
+          setTimeout(() => {
+            document.getElementById("status").textContent = "";
+          }, 1000);
+        });
+      }
+
+      // 初始化界面交互
+      function setupUIInteractions() {
+        // 水印类型切换
+        document.querySelectorAll('input[name="watermark-type"]').forEach((radio) => {
+          radio.addEventListener("change", function () {
+            if (this.value === "text") {
+              document.getElementById("text-settings").style.display = "block";
+              document.getElementById("image-settings").style.display = "none";
+            } else {
+              document.getElementById("text-settings").style.display = "none";
+              document.getElementById("image-settings").style.display = "block";
+            }
+            updateWatermark();
+          });
+        });
+
+        // 文本模式切换
+        document.querySelectorAll('input[name="text-mode"]').forEach((radio) => {
+          radio.addEventListener("change", function () {
+            if (this.value === "single") {
+              document.getElementById("multi-line-inputs").style.display = "none";
+            } else {
+              document.getElementById("multi-line-inputs").style.display = "block";
+            }
+            updateWatermark();
+          });
+        });
+
+        // 图片类型切换
+        document.querySelectorAll('input[name="image-type"]').forEach((radio) => {
+          radio.addEventListener("change", function () {
+            if (this.value === "valid") {
+              document.getElementById("valid-image-input").style.display = "block";
+              document.getElementById("invalid-image-input").style.display = "none";
+            } else {
+              document.getElementById("valid-image-input").style.display = "none";
+              document.getElementById("invalid-image-input").style.display = "block";
+            }
+            updateWatermark();
+          });
+        });
+
+        // 为所有输入控件添加变更监听
+        const inputs = document.querySelectorAll("input:not([type=radio]), select");
+        inputs.forEach((input) => {
+          input.addEventListener("change", updateWatermark);
+          input.addEventListener("input", updateWatermark);
+        });
+
+        // 销毁和重新创建按钮
+        document.getElementById("destroy").addEventListener("click", function () {
+          if (watermark) {
+            watermark.destroy();
+            isDestroyed = true;
+            document.getElementById("status").textContent = "水印已销毁";
+          }
+        });
+
+        document.getElementById("recreate").addEventListener("click", function () {
+          if (isDestroyed) {
+            createWatermark();
+          }
+        });
+      }
+
+      // 初始化
+      createWatermark();
+      setupUIInteractions();
     </script>
   </body>
 </html>
