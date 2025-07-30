@@ -25,10 +25,16 @@
 
       const watermark = new ihmWaterMark({
         container: document.getElementById("water-mark"),
-        x: 40,
-        y: 60,
         image: "data:image/png;base64,...",
         content: ["123", "456"],
+        font: {
+          color: "#ff0000",
+          fontSize: 23,
+          fontWeight: "bold",
+          fontFamily: "Arial",
+          fontStyle: "italic",
+          textAlign: "center",
+        },
       });
 
       watermark.output();

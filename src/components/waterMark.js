@@ -15,23 +15,17 @@ export default class ihm_WaterMark {
       // 水印将附加到的容器元素，默认为整个文档（document.body）
       container: config.container,
       // 水印的宽度，单位是像素
-      width: 250,
+      width: 120,
       // 水印的高度，单位是像素
-      height: 150,
-      // 水印文字的字体大小，单位是像素
-      fontSize: 20,
-      // 水印文字的字体
-      font: "microsoft yahei",
-      // 水印文字的颜色，默认为浅灰色
-      color: "#cccccc",
+      height: 64,
       // 水印的文字内容，支持字符串或字符串数组
-      content: "watermark",
+      content: "",
       // 图片源，建议导出2倍或3倍图，优先级高(支持base64格式)
       image: null,
-      // 水印的旋转角度，单位是度，默认倾斜 -30°
-      rotate: -30,
+      // 水印的旋转角度，单位是度，默认倾斜 -22°
+      rotate: -22,
       // 水印容器的 z-index，用于控制其在层叠上下文中的层级
-      zIndex: 1000,
+      zIndex: 9,
       // 水印的透明度，范围是 0（完全透明）到 1（完全不透明）
       opacity: 0.5,
       // 水印文字的起始 X 坐标（如果为 null，则使用 width 的一半作为默认值）
@@ -39,13 +33,29 @@ export default class ihm_WaterMark {
       // 水印文字的起始 Y 坐标（如果为 null，则使用 height 的一半作为默认值）
       y: null,
       // 水印之间的间距，gap: [水平间距, 垂直间距]
-      gap: [0, 0],
+      gap: [100, 100],
+      // 水印距离容器左上角的偏移量，默认为 gap/2
+      offset: null,
+      // 文字样式
+      font: {
+        color: "rgba(0,0,0,0.15)",
+        fontSize: 16,
+        fontWeight: "normal",
+        fontFamily: "sans-serif",
+        fontStyle: "normal",
+        textAlign: "center",
+      },
       ...config,
     };
 
     // gap参数归一化
     if (!Array.isArray(this.params.gap) || this.params.gap.length !== 2) {
-      this.params.gap = [0, 0];
+      this.params.gap = [100, 100];
+    }
+
+    // 初始化offset参数，默认为gap的一半
+    if (!this.params.offset || !Array.isArray(this.params.offset) || this.params.offset.length !== 2) {
+      this.params.offset = [this.params.gap[0] / 2, this.params.gap[1] / 2];
     }
 
     // 设置默认的 x, y 坐标
@@ -84,6 +94,7 @@ export default class ihm_WaterMark {
       z-index: ${this.params.zIndex};
       pointer-events: none;
       background-repeat: repeat;
+      background-position: ${this.params.offset[0]}px ${this.params.offset[1]}px;
       background-size: ${bgWidth}px ${bgHeight}px;
       background-image: url('${dataURL}');
     `;
@@ -91,7 +102,7 @@ export default class ihm_WaterMark {
 
   // 绘制水印的 DataURL
   toDataURL() {
-    const { width, height, fontSize, font, color, rotate, content, opacity, x, y, gap, image } = this.params;
+    const { width, height, rotate, content, opacity, x, y, gap, image, font } = this.params;
     // 创建画布，画布大小为width+gap[0], height+gap[1]
     const canvas = document.createElement("canvas");
     // 确保画布足够大，特别是在有旋转的情况下
@@ -102,10 +113,12 @@ export default class ihm_WaterMark {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.textBaseline = "top";
-    ctx.textAlign = "left";
-    ctx.fillStyle = color;
+    ctx.textAlign = font.textAlign || "center";
+    ctx.fillStyle = font.color;
     ctx.globalAlpha = opacity;
-    ctx.font = `${fontSize}px ${font}`;
+    // 构建字体样式字符串
+    const fontStyleString = `${font.fontStyle} ${font.fontWeight} ${font.fontSize}px ${font.fontFamily}`;
+    ctx.font = fontStyleString;
 
     // 如果提供了图片水印，则优先使用图片
     if (image) {
@@ -144,13 +157,13 @@ export default class ihm_WaterMark {
           // 清空画布重新开始
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.textBaseline = "top";
-          ctx.textAlign = "left";
-          ctx.fillStyle = color;
+          ctx.textAlign = font.textAlign || "center";
+          ctx.fillStyle = font.color;
           ctx.globalAlpha = opacity;
-          ctx.font = `${fontSize}px ${font}`;
+          ctx.font = fontStyleString;
 
           // 渲染文本水印
-          this.renderTextWatermark(ctx, content, x, y, fontSize);
+          this.renderTextWatermark(ctx, content, x, y, font.fontSize);
           resolve(canvas.toDataURL());
         };
 
@@ -159,7 +172,7 @@ export default class ihm_WaterMark {
       });
     } else {
       // 没有图片，直接渲染文本水印
-      this.renderTextWatermark(ctx, content, x, y, fontSize);
+      this.renderTextWatermark(ctx, content, x, y, font.fontSize);
       return canvas.toDataURL();
     }
   }
@@ -187,11 +200,19 @@ export default class ihm_WaterMark {
       content.forEach((text, index) => {
         const lineY = startY + lineHeight * index;
         // 在原点绘制文本（因为已经平移到中心点）
-        ctx.fillText(text, -ctx.measureText(text).width / 2, lineY);
+        if (ctx.textAlign === "center") {
+          ctx.fillText(text, 0, lineY);
+        } else {
+          ctx.fillText(text, -ctx.measureText(text).width / 2, lineY);
+        }
       });
     } else {
       // 在原点绘制文本
-      ctx.fillText(content, -ctx.measureText(content).width / 2, -fontSize / 2);
+      if (ctx.textAlign === "center") {
+        ctx.fillText(content, 0, -fontSize / 2);
+      } else {
+        ctx.fillText(content, -ctx.measureText(content).width / 2, -fontSize / 2);
+      }
     }
 
     // 恢复状态
@@ -272,6 +293,15 @@ export default class ihm_WaterMark {
   async update(config) {
     // 更新参数
     if (config) {
+      // 处理font参数的特殊合并
+      if (config.font) {
+        this.params.font = {
+          ...this.params.font,
+          ...config.font,
+        };
+        delete config.font; // 从config中删除，避免被下面的展开覆盖
+      }
+
       this.params = {
         ...this.params,
         ...config,
@@ -279,7 +309,12 @@ export default class ihm_WaterMark {
 
       // gap参数归一化
       if (!Array.isArray(this.params.gap) || this.params.gap.length !== 2) {
-        this.params.gap = [0, 0];
+        this.params.gap = [100, 100];
+      }
+
+      // 更新offset参数
+      if (!this.params.offset || !Array.isArray(this.params.offset) || this.params.offset.length !== 2) {
+        this.params.offset = [this.params.gap[0] / 2, this.params.gap[1] / 2];
       }
 
       // 更新默认的 x, y 坐标（如果需要）
