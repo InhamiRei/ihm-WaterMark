@@ -242,16 +242,7 @@
               <input type="number" id="height" value="64" />
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>X坐标</label>
-              <input type="number" id="x-pos" value="60" />
-            </div>
-            <div class="form-group">
-              <label>Y坐标</label>
-              <input type="number" id="y-pos" value="32" />
-            </div>
-          </div>
+
           <div class="form-row">
             <div class="form-group">
               <label>水平间距</label>
@@ -403,8 +394,6 @@
         // 布局和样式
         config.width = parseInt(document.getElementById("width").value);
         config.height = parseInt(document.getElementById("height").value);
-        config.x = parseInt(document.getElementById("x-pos").value);
-        config.y = parseInt(document.getElementById("y-pos").value);
         config.gap = [parseInt(document.getElementById("gap-x").value), parseInt(document.getElementById("gap-y").value)];
         config.offset = [parseInt(document.getElementById("offset-x").value), parseInt(document.getElementById("offset-y").value)];
         config.rotate = parseInt(document.getElementById("rotate").value);

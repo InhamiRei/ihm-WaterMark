@@ -29,10 +29,6 @@ export default class ihm_WaterMark {
       zIndex: 2025,
       // 水印的透明度，范围是 0（完全透明）到 1（完全不透明）
       opacity: 0.5,
-      // 水印文字的起始 X 坐标（如果为 null，则使用 width 的一半作为默认值）
-      x: null,
-      // 水印文字的起始 Y 坐标（如果为 null，则使用 height 的一半作为默认值）
-      y: null,
       // 水印之间的间距，gap: [水平间距, 垂直间距]
       gap: [100, 100],
       // 水印距离容器左上角的偏移量，默认为 gap/2
@@ -73,9 +69,9 @@ export default class ihm_WaterMark {
       this.params.offset = [this.params.gap[0] / 2, this.params.gap[1] / 2];
     }
 
-    // 设置默认的 x, y 坐标
-    this.params.x = this.params.x !== null && this.params.x !== undefined ? this.params.x : this.params.width / 2;
-    this.params.y = this.params.y !== null && this.params.y !== undefined ? this.params.y : this.params.height / 2;
+    // 计算水印绘制位置
+    this.watermarkX = this.params.width / 2;
+    this.watermarkY = this.params.height / 2;
 
     // 存储样式字符串的Promise
     this.styleStrPromise = this.generateStyle();
@@ -117,7 +113,9 @@ export default class ihm_WaterMark {
 
   // 绘制水印的 DataURL
   toDataURL() {
-    const { width, height, rotate, content, opacity, x, y, gap, image, font } = this.params;
+    const { width, height, rotate, content, opacity, gap, image, font } = this.params;
+    const x = this.watermarkX;
+    const y = this.watermarkY;
     // 创建画布，画布大小为width+gap[0], height+gap[1]
     const canvas = document.createElement("canvas");
     // 确保画布足够大，特别是在有旋转的情况下
@@ -332,13 +330,9 @@ export default class ihm_WaterMark {
         this.params.offset = [this.params.gap[0] / 2, this.params.gap[1] / 2];
       }
 
-      // 更新默认的 x, y 坐标（如果需要）
-      if (config.width !== undefined || this.params.x === null || this.params.x === undefined) {
-        this.params.x = this.params.x !== null && this.params.x !== undefined ? this.params.x : this.params.width / 2;
-      }
-      if (config.height !== undefined || this.params.y === null || this.params.y === undefined) {
-        this.params.y = this.params.y !== null && this.params.y !== undefined ? this.params.y : this.params.height / 2;
-      }
+      // 更新水印绘制位置
+      this.watermarkX = this.params.width / 2;
+      this.watermarkY = this.params.height / 2;
 
       // 生成新的样式
       this.styleStrPromise = this.generateStyle();
