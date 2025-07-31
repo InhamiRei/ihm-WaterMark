@@ -11,7 +11,8 @@ export default class ihm_WaterMark {
       throw new Error("The 'container' parameter must be a valid DOM element.");
     }
 
-    this.params = {
+    // 创建默认参数
+    const defaultParams = {
       // 水印将附加到的容器元素，默认为整个文档（document.body）
       container: config.container,
       // 水印的宽度，单位是像素
@@ -25,7 +26,7 @@ export default class ihm_WaterMark {
       // 水印的旋转角度，单位是度，默认倾斜 -22°
       rotate: -22,
       // 水印容器的 z-index，用于控制其在层叠上下文中的层级
-      zIndex: 9,
+      zIndex: 2025,
       // 水印的透明度，范围是 0（完全透明）到 1（完全不透明）
       opacity: 0.5,
       // 水印文字的起始 X 坐标（如果为 null，则使用 width 的一半作为默认值）
@@ -45,7 +46,21 @@ export default class ihm_WaterMark {
         fontStyle: "normal",
         textAlign: "center",
       },
-      ...config,
+    };
+
+    // 处理font参数的特殊合并
+    let mergedConfig = { ...config };
+    if (config.font) {
+      mergedConfig.font = {
+        ...defaultParams.font,
+        ...config.font,
+      };
+    }
+
+    // 合并配置
+    this.params = {
+      ...defaultParams,
+      ...mergedConfig,
     };
 
     // gap参数归一化

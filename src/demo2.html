@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        background-color: #000;
+      }
+      .water-mark {
+        width: 440px;
+        height: 400px;
+        margin: 20px 0 0 20px;
+        border: 1px solid #676767;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="water-mark" class="water-mark"></div>
+
+    <script type="module">
+      import ihmWaterMark from "./components/WaterMark.js";
+
+      const watermark = new ihmWaterMark({
+        container: document.getElementById("water-mark"),
+        // image: "data:image/png;base64,...",
+        // content: ["123", "456"],
+        content: "Arges",
+        gap: [50, 50],
+        offset: [0, 0],
+        font: {
+          color: "#ff0000",
+          fontSize: 20,
+          fontWeight: "bold",
+          // fontFamily: "Arial",
+          // fontStyle: "italic",
+          // textAlign: "center",
+        },
+      });
+
+      watermark.output();
+
+      // setTimeout(() => {
+      //   watermark.update({
+      //     width: 100,
+      //     height: 100,
+      //     x: 50,
+      //     y: 50,
+      //     rotate: -20,
+      //     gap: 5, // 传错了，不生效
+      //     image: "https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg",
+      //   });
+      // }, 5000);
+    </script>
+  </body>
+</html>
