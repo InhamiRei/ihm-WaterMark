@@ -1,8 +1,9 @@
 {
   "name": "ihm-watermark",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "A simple watermark library for web applications.",
   "main": "./dist/esm.js",
+  "types": "./index.d.ts",
   "scripts": {
     "dev": "webpack-dev-server",
     "build": "webpack"
@@ -19,6 +20,10 @@
     "type": "git",
     "url": "https://github.com/InhamiRei/TaroWaterMark"
   },
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
   "devDependencies": {
     "css-loader": "5.2.6",
     "style-loader": "2.0.0",
